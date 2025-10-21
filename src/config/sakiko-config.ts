@@ -3,7 +3,7 @@ import * as z from "zod";
 /** SakikoConfigSchema Sakiko的配置验证结构，通过zod对配置的内容进行验证
  *
  */
-const SakikoConfigSchema = z.object({
+export const SakikoConfigSchema = z.object({
 	/** Sakiko的监听地址 */
 	host: z.ipv4().optional().default("127.0.0.1"),
 	/** Sakiko的监听端口 */
@@ -22,5 +22,3 @@ const SakikoConfigSchema = z.object({
 
 export type SakikoConfig = Partial<z.infer<typeof SakikoConfigSchema>> &
 	Record<string, any>;
-
-export default SakikoConfigSchema;

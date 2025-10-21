@@ -4,9 +4,9 @@ import type {
 	ISakikoEventBus,
 	ISakikoPlugin,
 } from "./interface";
-import hasGetNamedSubLogger from "@/log/interface";
+import { hasGetNamedSubLogger } from "@/log/interface";
 
-class Sakiko {
+export class Sakiko {
 	logger: ISakikoLogger;
 	eventBus: ISakikoEventBus;
 	config: Record<string, any>;
@@ -39,5 +39,3 @@ class Sakiko {
 
 	addPlugin(plugin: ISakikoPlugin): void {}
 }
-
-export default Sakiko;

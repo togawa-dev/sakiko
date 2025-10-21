@@ -1,7 +1,7 @@
 import { snowflakeIdBase36 } from "@/utils/snowflake";
 import type { ISakikoEvent } from "./interface";
 
-abstract class SakikoEvent implements ISakikoEvent {
+export abstract class SakikoEvent implements ISakikoEvent {
 	private id: string = snowflakeIdBase36();
 	private timestamp: number = Date.now();
 
@@ -34,5 +34,3 @@ abstract class SakikoEvent implements ISakikoEvent {
 
 	abstract toString(): string;
 }
-
-export default SakikoEvent;

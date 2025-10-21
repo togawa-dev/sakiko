@@ -1,4 +1,4 @@
-interface ISakikoLogger {
+export interface ISakikoLogger {
 	trace(...args: any): void;
 	debug(...args: any): void;
 	info(...args: any): void;
@@ -13,13 +13,10 @@ interface ISakikoLogger {
  * @param logger
  * @returns
  */
-function hasGetNamedSubLogger(
+export function hasGetNamedSubLogger(
 	logger: ISakikoLogger,
 ): logger is ISakikoLogger & {
 	getNamedSubLogger: (name: string) => ISakikoLogger;
 } {
 	return typeof logger.getNamedSubLogger === "function";
 }
-
-export type { ISakikoLogger };
-export default hasGetNamedSubLogger;

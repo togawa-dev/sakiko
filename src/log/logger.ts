@@ -1,13 +1,13 @@
 import { Logger, type ILogObj } from "tslog";
 import type { ISakikoLogger } from "./interface";
 
-class ExtendedTSLogger extends Logger<ILogObj> implements ISakikoLogger {
+export class ExtendedTSLogger extends Logger<ILogObj> implements ISakikoLogger {
 	getNamedSubLogger(name: string): ISakikoLogger {
 		return this.getSubLogger({ name: name });
 	}
 }
 
-function newLogger(conf: Record<string, any>): ISakikoLogger {
+export function newLogger(conf: Record<string, any>): ISakikoLogger {
 	// 如果没有读取到配置项则自动Fallback
 	let logLevel: number = conf["logLevel"] ?? 3;
 	let enbalePrettyLogger: boolean = conf["enablePrettyLogger"] ?? true;
@@ -72,6 +72,3 @@ function newLogger(conf: Record<string, any>): ISakikoLogger {
 	}
 	return logger;
 }
-
-export default newLogger;
-export { ExtendedTSLogger };

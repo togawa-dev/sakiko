@@ -1,32 +1,16 @@
-import SakikoConfigSchema from "./config/sakiko-config";
-import type { SakikoConfig } from "./config/sakiko-config";
-import type { ISakikoLogger } from "./log/interface";
-import hasGetNamedSubLogger from "./log/interface";
+import { SakikoConfigSchema } from "./config/sakiko-config";
 import * as z from "zod";
-import newLogger from "./log/logger";
-import ExtendedTSLogger from "./log/logger";
+import { newLogger } from "./log/logger";
 import pc from "picocolors";
 import { SakikoEventBus } from "./bus/bus";
-import Sakiko from "./core/sakiko";
-import type {
-	ISakikoEvent,
-	ISakikoBot,
-	ISakikoCallApiResult,
-	ISakikoAdapter,
-	ISakikoEventBus,
-	ISakikoPlugin,
-} from "./core/interface";
-
-import SakikoAdapter from "./core/adapter";
-import SakikoEvent from "./core/event";
-import type { EventHandler } from "./core/handler";
-import { snowflakeIdBase36, snowflakeIdBase36Unsafe } from "./utils/snowflake";
+import { Sakiko } from "./core/sakiko";
+import type { ISakikoEventBus } from "./core/interface";
 
 /** Sakiko的初始化入口
  * @param config 配置项（可选）
  * @param eventBus 事件总线实例（可选）
  */
-function init(
+export function init(
 	config?: Record<string, any>,
 	eventBus?: ISakikoEventBus,
 ): Sakiko {
@@ -84,21 +68,14 @@ function init(
 	return botInstance;
 }
 
-// 导出
-export { init };
-export { type ISakikoLogger, hasGetNamedSubLogger, ExtendedTSLogger }; // log
-export { SakikoConfigSchema, type SakikoConfig }; // config
-export {
-	Sakiko,
-	type ISakikoEvent,
-	type ISakikoBot,
-	type ISakikoCallApiResult,
-	type ISakikoAdapter,
-	type ISakikoEventBus,
-	type ISakikoPlugin,
-	SakikoAdapter,
-	SakikoEvent,
-	type EventHandler,
-}; // core
-export { SakikoEventBus }; // bus
-export { snowflakeIdBase36, snowflakeIdBase36Unsafe }; // utils
+export * from "./core/interface";
+export * from "./core/sakiko";
+export * from "./core/adapter";
+export * from "./core/handler";
+export * from "./core/plugin";
+export * from "./log/interface";
+export * from "./log/logger";
+export * from "./bus/bus";
+export * from "./config/sakiko-config";
+export * from "./config/merger";
+export * from "./utils/snowflake";

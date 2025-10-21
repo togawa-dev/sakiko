@@ -5,7 +5,7 @@ import { type ISakikoEvent, type ISakikoEventBus } from "../core/interface";
 /** SakikoEventBus 事件总线实现类
  * 负责管理事件处理器的注册、注销以及事件的发布与分发
  */
-class SakikoEventBus implements ISakikoEventBus {
+export class SakikoEventBus implements ISakikoEventBus {
 	/** 一个事件处理器映射 */
 	private eventHandlerMap: Map<number, EventHandler[]> = new Map();
 	/** 已注册的优先级列表，按降序排列 */
@@ -103,5 +103,3 @@ class SakikoEventBus implements ISakikoEventBus {
 		this.logger.debug("所有优先级上的事件处理器已检查完毕");
 	}
 }
-
-export { SakikoEventBus }; // 导出事件总线类

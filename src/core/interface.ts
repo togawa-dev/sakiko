@@ -5,7 +5,7 @@ import { type EventHandler } from "./handler";
  * ISakikoEvent Sakiko使用的事件接口，实现该接口的数据都可以在事件总线上传递
  * @interface ISakikoEvent
  */
-interface ISakikoEvent {
+export interface ISakikoEvent {
 	getId(): string;
 
 	getTimestamp(): number;
@@ -26,7 +26,7 @@ interface ISakikoEvent {
 /** ISakikoBot Sakiko的Bot接口，由适配器实现其具体功能
  * @interface ISakiko
  */
-interface ISakikoBot {
+export interface ISakikoBot {
 	/** 获取当前Bot自身的Id */
 	getSelfId(): string | null;
 	/** 获取当前Bot所使用的协议名称 */
@@ -54,7 +54,7 @@ interface ISakikoBot {
 /** ISakikoCallApiResult Sakiko调用API接口的结果封装
  * @interface ISakikoCallApiResult
  */
-interface ISakikoCallApiResult<TResult = unknown> {
+export interface ISakikoCallApiResult<TResult = unknown> {
 	/** 判断API调用是否成功 */
 	isSuccess(): boolean;
 	/** 获取API调用的状态码 */
@@ -66,7 +66,7 @@ interface ISakikoCallApiResult<TResult = unknown> {
 /** 事件总线接口定义
  * @interface IEventBus
  */
-interface ISakikoEventBus {
+export interface ISakikoEventBus {
 	/** 获取事件总线名称 */
 	getBusName(): string;
 
@@ -90,20 +90,11 @@ interface ISakikoEventBus {
 	publish(event: ISakikoEvent): Promise<void>;
 }
 
-interface ISakikoAdapter {
+export interface ISakikoAdapter {
 	setEventBus(eventBus: ISakikoEventBus): void;
 	getAdapterName(): string;
 }
 
-interface ISakikoPlugin {
+export interface ISakikoPlugin {
 	getPlginName(): string;
 }
-
-export type {
-	ISakikoEvent,
-	ISakikoBot,
-	ISakikoCallApiResult,
-	ISakikoEventBus,
-	ISakikoAdapter,
-	ISakikoPlugin,
-};

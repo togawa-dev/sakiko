@@ -1,7 +1,7 @@
 import { type ISakikoEvent } from "./interface";
 
 /** EventHandler Sakiko的事件处理器类型 */
-type EventHandler = {
+export type EventHandler = {
 	pluginId: string;
 	signature: string;
 
@@ -10,5 +10,3 @@ type EventHandler = {
 	timeout: number;
 	handle: (event: ISakikoEvent) => Promise<boolean>;
 };
-
-export type { EventHandler };

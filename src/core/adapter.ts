@@ -1,6 +1,6 @@
 import type { ISakikoAdapter, ISakikoEventBus } from "./interface";
 
-abstract class SakikoAdapter implements ISakikoAdapter {
+export abstract class SakikoAdapter implements ISakikoAdapter {
 	private eventBus: ISakikoEventBus;
 
 	constructor(eventBus: ISakikoEventBus) {
@@ -13,5 +13,3 @@ abstract class SakikoAdapter implements ISakikoAdapter {
 		this.eventBus = eventBus;
 	}
 }
-
-export default SakikoAdapter;
