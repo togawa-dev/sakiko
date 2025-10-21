@@ -79,3 +79,4 @@ export * from "./bus/bus";
 export * from "./config/sakiko-config";
 export * from "./config/merger";
 export * from "./utils/snowflake";
+export * from "./error/errors";

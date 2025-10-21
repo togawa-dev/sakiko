@@ -6,6 +6,8 @@ export abstract class SakikoAdapter implements ISakikoAdapter {
 
 	abstract getAdapterName(): string;
 
+	abstract getProtocolName(): string;
+
 	getEventBus(): ISakikoEventBus {
 		if (this.eventBus !== null) {
 			return this.eventBus;
