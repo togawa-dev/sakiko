@@ -9,7 +9,7 @@ import type { Sakiko } from "../framework/sakiko";
 export abstract class SakikoAdapter implements ISakikoAdapter {
 	private eventBus!: ISakikoEventBus;
 	private logger!: ISakikoLogger;
-	private framework!: Sakiko;
+	public framework!: Sakiko;
 
 	abstract getAdapterName(): string;
 

@@ -38,4 +38,16 @@ export class Sakiko {
 	addAdapter(adapter: ISakikoAdapter): void {}
 
 	addPlugin(plugin: ISakikoPlugin): void {}
+
+	getConfig(key: string): any | null {
+		return this.config[key];
+	}
+
+	getConfigSafely<T>(key: string, defaultValue: T): T {
+		const value = this.config[key];
+		if (value === undefined || value === null) {
+			return defaultValue;
+		}
+		return value as T;
+	}
 }
