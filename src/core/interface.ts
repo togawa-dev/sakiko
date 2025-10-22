@@ -18,6 +18,8 @@ export interface ISakikoEvent {
 	getSelfId(): string;
 
 	toString(): string;
+
+	getTypes(): number[];
 }
 
 /** ISakikoBot Sakiko的Bot接口，由适配器实现其具体功能

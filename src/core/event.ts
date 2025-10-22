@@ -12,6 +12,7 @@ export abstract class SakikoEvent implements ISakikoEvent {
 	selfId: string = "";
 
 	abstract getTypes(): number[];
+	abstract getProtocol(): string;
 
 	getId(): string {
 		return this.id;
@@ -19,10 +20,6 @@ export abstract class SakikoEvent implements ISakikoEvent {
 
 	getCreateTime(): number {
 		return this.createTime;
-	}
-
-	getProtocol(): string {
-		return "";
 	}
 
 	getSenderId(): string {
