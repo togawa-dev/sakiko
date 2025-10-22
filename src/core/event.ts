@@ -8,8 +8,10 @@ export abstract class SakikoEvent implements ISakikoEvent {
 	static protocol: string = "";
 	static types: number[] = [];
 
-	senderId: string = "";
-	selfId: string = "";
+	constructor(
+		public selfId: string = "",
+		public senderId: string = "",
+	) {}
 
 	abstract getTypes(): number[];
 	abstract getProtocol(): string;
@@ -32,5 +34,10 @@ export abstract class SakikoEvent implements ISakikoEvent {
 
 	toString(): string {
 		return "";
+	}
+
+	isType(...type: number[]) {
+		// 如果传入的事件类型中有任意一个在当前事件的类型列表中存在，则返回true
+		return type.some((t) => this.getTypes().includes(t));
 	}
 }

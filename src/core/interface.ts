@@ -20,6 +20,8 @@ export interface ISakikoEvent {
 	toString(): string;
 
 	getTypes(): number[];
+
+	isType(...type: number[]): boolean;
 }
 
 /** ISakikoBot Sakiko的Bot接口，由适配器实现其具体功能
