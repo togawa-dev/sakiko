@@ -1,6 +1,7 @@
 import type { ISakikoLogger } from "@/log/interface";
 import { type EventHandler } from "./handler";
 import type { Sakiko } from "@/framework/sakiko";
+import type { ZodObject } from "zod";
 
 /**
  * ISakikoEvent Sakiko使用的事件接口，实现该接口的数据都可以在事件总线上传递
@@ -95,6 +96,7 @@ export interface ISakikoAdapter {
 	getAdapterName(): string;
 	getAdapterVersion(): string;
 	getProtocolName(): string;
+	getExtraConfigSchema(): ZodObject;
 
 	init(framework: Sakiko): void | Promise<void>;
 	start(): void | Promise<void>;

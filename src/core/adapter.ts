@@ -5,6 +5,7 @@ import {
 import type { ISakikoAdapter, ISakikoEventBus } from "./interface";
 import { hasGetNamedSubLogger, type ISakikoLogger } from "@/log/interface";
 import type { Sakiko } from "../framework/sakiko";
+import type { ZodObject } from "zod";
 
 export abstract class SakikoAdapter implements ISakikoAdapter {
 	private eventBus!: ISakikoEventBus;
@@ -16,6 +17,8 @@ export abstract class SakikoAdapter implements ISakikoAdapter {
 	abstract getAdapterVersion(): string;
 
 	abstract getProtocolName(): string;
+
+	abstract getExtraConfigSchema(): ZodObject;
 
 	abstract init(framework: Sakiko): void | Promise<void>;
 

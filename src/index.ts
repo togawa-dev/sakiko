@@ -10,18 +10,23 @@ import type { ISakikoEventBus } from "@/core/interface";
  * @param config 配置项（可选）
  * @param eventBus 事件总线实例（可选）
  */
-export function init(
-	config?: Record<string, any>,
+export function initSakiko(
 	eventBus?: ISakikoEventBus,
+	...config: Record<string, any>[]
 ): Sakiko {
 	let confParsedFlag = true; // 配置是否成功解析
-	let SakikoConf: Record<string, any>; // 解析后的内置配置部分
+	let SakikoConf: Record<string, any> = {}; // 解析后的内置配置部分
+	let mergedConfig: Record<string, any> = {}; // 合并后的配置项
 	let zodParsedError: z.ZodError; // 可能产生的异常
 
 	if (config) {
+		// 合并所有传入的配置项
+		for (let confPart of config) {
+			mergedConfig = { ...mergedConfig, ...confPart };
+		}
 		// 第一遍配置解析，只解析Sakiko预置的配置结构
 		try {
-			SakikoConf = SakikoConfigSchema.parse(config);
+			SakikoConf = SakikoConfigSchema.parse(mergedConfig);
 		} catch (e) {
 			confParsedFlag = false;
 			if (e instanceof z.ZodError) {
@@ -61,7 +66,7 @@ export function init(
 	logger.debug(pc.green(eventBus.getBusName()), "类型的事件总线已被成功载入");
 
 	// 初始化框架实例
-	let framework = new Sakiko(SakikoConf, logger, eventBus);
+	let framework = new Sakiko(SakikoConf, mergedConfig, logger, eventBus);
 
 	// logger.info("Sakiko 初始化完成");
 
