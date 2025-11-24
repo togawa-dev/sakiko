@@ -20,7 +20,7 @@ export abstract class SakikoMetaEvent extends SakikoBaseEvent {
 
 export abstract class SakikoMessageEvent extends SakikoBaseEvent {
   abstract getPlainText(): string;
-  abstract isMentioned(): boolean;
+  abstract toMe(): boolean;
 
   constructor(framework: Sakiko) {
     super(framework);
