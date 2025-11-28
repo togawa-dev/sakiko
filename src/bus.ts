@@ -18,7 +18,7 @@ export type EventConstructor<T extends Event = Event> = new (
  *
  * The type definition of rule functions for event handlers
  */
-export type Rule<T extends Event> =
+export type Rule<T extends Event = Event> =
   | ((event: T) => boolean | Promise<boolean>)
   | (() => boolean | Promise<boolean>);
 
@@ -27,21 +27,26 @@ export type Rule<T extends Event> =
  *
  * The type definition of matcher functions for event handlers
  */
-export type Matcher<T extends Event> = (event: T) => boolean | Promise<boolean>;
+export type Matcher<T extends Event = Event> = (
+  event: T
+) => boolean | Promise<boolean>;
 
 /**
  * 事件处理器的预处理器函数类型定义
  *
  * The type definition of processor functions for event handlers
  */
-export type Processor<T extends Event> = (event: T) => T | Promise<T>;
+export type Processor<T extends Event = Event> = (event: T) => T | Promise<T>;
 
 /**
  * 事件处理器的主处理函数类型定义
  *
  * The type definition of main handler functions for event handlers
  */
-export type Handler<T extends Event, U extends SakikoAdapter = SakikoAdapter> =
+export type Handler<
+  T extends Event = Event,
+  U extends SakikoAdapter = SakikoAdapter
+> =
   | ((event: T) => void | boolean | Promise<void | boolean>)
   | ((event: T, adapter: U) => void | boolean | Promise<void | boolean>);
 
@@ -51,7 +56,7 @@ export type Handler<T extends Event, U extends SakikoAdapter = SakikoAdapter> =
  * The interface definition of event handler builders
  */
 export interface EventHandlerBuilder<
-  T extends Event,
+  T extends Event = Event,
   U extends SakikoAdapter = SakikoAdapter
 > {
   priority(priority: number): EventHandlerBuilder<T>;
@@ -60,7 +65,13 @@ export interface EventHandlerBuilder<
   check(rule: Rule<T>): EventHandlerBuilder<T>;
   match(matcher: Matcher<T>): EventHandlerBuilder<T>;
   process(processor: Processor<T>): EventHandlerBuilder<T>;
-  handle(handler: Handler<T, U>): () => void;
+  // 这里用重载来避免 Handler 类型的联合类型带来的参数个数不确定问题
+  handle(
+    handler: (event: T) => void | boolean | Promise<void | boolean>
+  ): () => void;
+  handle(
+    handler: (event: T, adapter: U) => void | boolean | Promise<void | boolean>
+  ): () => void;
 }
 
 /**
@@ -69,7 +80,7 @@ export interface EventHandlerBuilder<
  * The type structure definition of event handlers
  */
 export type EventHandler<
-  T extends Event,
+  T extends Event = Event,
   U extends SakikoAdapter = SakikoAdapter
 > = {
   priority: number;
@@ -87,8 +98,10 @@ export type EventHandler<
  * The interface definition of event bus
  */
 export interface IEventBus {
-  on<T extends Event>(...ets: EventConstructor<T>[]): EventHandlerBuilder<T>;
-  emit<T extends Event, U extends SakikoAdapter = SakikoAdapter>(
+  on<T extends Event = Event>(
+    ...ets: EventConstructor<T>[]
+  ): EventHandlerBuilder<T>;
+  emit<T extends Event = Event, U extends SakikoAdapter = SakikoAdapter>(
     event: T,
     adapter: U
   ): Promise<void>;
@@ -102,10 +115,7 @@ export interface IEventBus {
  * The default local event bus implementation of Sakiko
  */
 export class Umiri implements IEventBus {
-  private handlerMap = new Map<
-    number,
-    Map<EventConstructor<any>, Set<EventHandler<any>>>
-  >();
+  private handlerMap = new Map<number, Map<EventConstructor<any>, Set<any>>>();
 
   private logger: ILogger;
 
@@ -120,7 +130,9 @@ export class Umiri implements IEventBus {
    * @param ets 处理器需要监听的事件类型构造器列表 The list of event type constructors that the handler needs to listen to
    * @returns 用于链式调用以完成事件处理器构建的构建器对象 The builder object for chaining calls to complete the event handler construction
    */
-  on<T extends Event>(...ets: EventConstructor<T>[]): EventHandlerBuilder<T> {
+  on<T extends Event = Event, U extends SakikoAdapter = SakikoAdapter>(
+    ...ets: EventConstructor<T>[]
+  ): EventHandlerBuilder<T> {
     // 事件类型的构造器定义
     let priority = 0;
     let block = false;
@@ -163,15 +175,15 @@ export class Umiri implements IEventBus {
         processors.push(processor);
         return builder;
       },
-      handle(handler: Handler<T>): () => void {
+      handle(handler: Handler<T, U>): () => void {
         if (handled) throw new Error(BUILDER_LOCKED_ERROR_MESSAGE);
         handled = true;
         // 记录所有注册的 {priority, et, handlers, handlerObj} 以便后续取消
         const registered: Array<{
           priority: number;
           et: EventConstructor<T>;
-          handlers: Set<EventHandler<T>>;
-          handlerObj: EventHandler<T>;
+          handlers: Set<EventHandler<T, U>>;
+          handlerObj: EventHandler<T, U>;
         }> = [];
         ets.forEach((et) => {
           let priorityMap = umiri.handlerMap.get(priority);
@@ -184,7 +196,7 @@ export class Umiri implements IEventBus {
             handlers = new Set();
             priorityMap.set(et, handlers);
           }
-          const handlerObj: EventHandler<T> = {
+          const handlerObj: EventHandler<T, U> = {
             priority,
             block,
             timeout,
@@ -224,7 +236,10 @@ export class Umiri implements IEventBus {
    * Emit an event on the event bus and trigger the corresponding event handlers
    * @param event 要发布的事件 The event to be emitted
    */
-  async emit<T extends Event>(event: T, adapter: SakikoAdapter): Promise<void> {
+  async emit<T extends Event = Event, U extends SakikoAdapter = SakikoAdapter>(
+    event: T,
+    adapter: U
+  ): Promise<void> {
     // 获取当前的可用优先级列表
     const priorities = Array.from(this.handlerMap.keys()).sort((a, b) => b - a); // 从高到低排序
 
