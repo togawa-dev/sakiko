@@ -1,4 +1,5 @@
 import type { SakikoAdapter } from "@/adapter";
+import { Event } from "@/builtin";
 import {
   type EventConstructor,
   type EventHandlerBuilder,
