@@ -209,5 +209,6 @@ export function sakiko(options?: SakikoOptions): Sakiko {
 export * from "@/adapter";
 export * from "@/builtin";
 export * from "@/bus";
+export * from "@/colors";
 export * from "@/logger";
 export * from "@/utils";
