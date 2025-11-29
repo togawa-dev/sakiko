@@ -1,4 +1,4 @@
-import type { SakikoAdapter } from "@/adapter";
+import type { ISakikoAdapter } from "@/adapter";
 import { Event } from "@/builtin";
 import {
   type EventConstructor,
@@ -32,7 +32,7 @@ export class Sakiko {
   private nodeId: number;
   private snowflake: SnowFlake;
 
-  private adapters: SakikoAdapter[] = [];
+  private adapters: ISakikoAdapter[] = [];
 
   private stopPromise: Promise<void> | null = null;
   private resolveStopPromise: (() => void) | null = null;
@@ -106,7 +106,7 @@ export class Sakiko {
    * Apply an adapter to the Sakiko framework
    * @param adapter 要应用的适配器 The adapter to be applied
    */
-  apply(adapter: SakikoAdapter): void {
+  apply(adapter: ISakikoAdapter): void {
     try {
       adapter.init(this);
       this.adapters.push(adapter);
@@ -227,7 +227,7 @@ export class Sakiko {
    * Get all applied adapter instances
    * @returns
    */
-  getAllAdapters(): SakikoAdapter[] {
+  getAllAdapters(): ISakikoAdapter[] {
     return this.adapters;
   }
 
@@ -247,10 +247,10 @@ export class Sakiko {
    *
    * A shortcut method to emit events to the event bus
    */
-  async emit<T extends Event = Event, U extends SakikoAdapter = SakikoAdapter>(
-    event: T,
-    adapter: U
-  ): Promise<void> {
+  async emit<
+    T extends Event = Event,
+    U extends ISakikoAdapter = ISakikoAdapter
+  >(event: T, adapter: U): Promise<void> {
     return this.bus.emit(event, adapter);
   }
 }

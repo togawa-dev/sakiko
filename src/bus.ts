@@ -1,5 +1,5 @@
 import type { ILogger } from "@/logger";
-import type { SakikoAdapter } from "./adapter";
+import type { ISakikoAdapter } from "./adapter";
 import { Event } from "./builtin";
 
 const BUILDER_LOCKED_ERROR_MESSAGE = "Builder is locked after handle() call";
@@ -55,15 +55,12 @@ export type Processor<T extends Event = Event> =
  */
 export type Handler<
   T extends Event = Event,
-  U extends SakikoAdapter = SakikoAdapter
-> =
-  | ((event: T) => void | boolean | Promise<void | boolean>)
-  | ((event: T, adapter: U) => void | boolean | Promise<void | boolean>)
-  | ((
-      event: T,
-      adapter: U,
-      ctx: EventHandleContext
-    ) => void | boolean | Promise<void | boolean>);
+  U extends ISakikoAdapter = ISakikoAdapter
+> = (
+  event: T,
+  adapter: U,
+  ctx: EventHandleContext
+) => void | boolean | Promise<void | boolean>;
 
 /**
  * 事件处理器的构建器的接口定义
@@ -72,41 +69,28 @@ export type Handler<
  */
 export interface EventHandlerBuilder<
   T extends Event = Event,
-  U extends SakikoAdapter = SakikoAdapter
+  U extends ISakikoAdapter = ISakikoAdapter
 > {
-  priority(priority: number): EventHandlerBuilder<T>;
-  block(block: boolean): EventHandlerBuilder<T>;
-  timeout(timeout: number): EventHandlerBuilder<T>;
+  priority(priority: number): EventHandlerBuilder<T, U>;
+  block(block: boolean): EventHandlerBuilder<T, U>;
+  timeout(timeout: number): EventHandlerBuilder<T, U>;
 
   // Rule重载
-  match(matcher: () => boolean | Promise<boolean>): EventHandlerBuilder<T>;
+  match(matcher: () => boolean | Promise<boolean>): EventHandlerBuilder<T, U>;
   match(
     matcher: (event: T) => boolean | Promise<boolean>
-  ): EventHandlerBuilder<T>;
+  ): EventHandlerBuilder<T, U>;
   match(
     matcher: (event: T, ctx: EventHandleContext) => boolean | Promise<boolean>
-  ): EventHandlerBuilder<T>;
+  ): EventHandlerBuilder<T, U>;
 
   // Processor重载
-  process(processor: (event: T) => T | Promise<T>): EventHandlerBuilder<T>;
+  process(processor: (event: T) => T | Promise<T>): EventHandlerBuilder<T, U>;
   process(
     processor: (event: T, ctx: EventHandleContext) => T | Promise<T>
-  ): EventHandlerBuilder<T>;
+  ): EventHandlerBuilder<T, U>;
 
-  // Handler重载
-  handle(
-    handler: (event: T) => void | boolean | Promise<void | boolean>
-  ): () => void;
-  handle(
-    handler: (event: T, adapter: U) => void | boolean | Promise<void | boolean>
-  ): () => void;
-  handle(
-    handler: (
-      event: T,
-      adapter: U,
-      ctx: EventHandleContext
-    ) => void | boolean | Promise<void | boolean>
-  ): () => void;
+  handle(handler: Handler<T, U>): () => void;
 }
 
 /**
@@ -116,7 +100,7 @@ export interface EventHandlerBuilder<
  */
 export type EventHandler<
   T extends Event = Event,
-  U extends SakikoAdapter = SakikoAdapter
+  U extends ISakikoAdapter = ISakikoAdapter
 > = {
   priority: number;
   block: boolean;
@@ -131,12 +115,12 @@ export type EventHandler<
  *
  * The interface definition of event bus
  */
-export interface IEventBus {
+export interface IEventBus<U extends ISakikoAdapter = ISakikoAdapter> {
   on<TEvents extends Event[]>(
     ...ets: { [K in keyof TEvents]: EventConstructor<TEvents[K]> }
-  ): EventHandlerBuilder<TEvents[number]>;
+  ): EventHandlerBuilder<TEvents[number], U>;
 
-  emit<T extends Event = Event, U extends SakikoAdapter = SakikoAdapter>(
+  emit<T extends Event = Event, U extends ISakikoAdapter = ISakikoAdapter>(
     event: T,
     adapter: U
   ): Promise<void>;
@@ -165,9 +149,9 @@ export class Umiri implements IEventBus {
    * @param ets 处理器需要监听的事件类型构造器列表 The list of event type constructors that the handler needs to listen to
    * @returns 用于链式调用以完成事件处理器构建的构建器对象 The builder object for chaining calls to complete the event handler construction
    */
-  on<TEvents extends Event[]>(
+  on<TEvents extends Event[], U extends ISakikoAdapter = ISakikoAdapter>(
     ...ets: { [K in keyof TEvents]: EventConstructor<TEvents[K]> }
-  ): EventHandlerBuilder<TEvents[number]> {
+  ): EventHandlerBuilder<TEvents[number], U> {
     // 解决传入多个类型构造器参数时的泛型推导问题
     // 把原来 on 函数内部的实现的 T 换成 TEvents[number]
     type T = TEvents[number];
@@ -182,7 +166,7 @@ export class Umiri implements IEventBus {
     let handled = false;
 
     const umiri = this;
-    const builder: EventHandlerBuilder<T> = {
+    const builder: EventHandlerBuilder<T, U> = {
       priority(p: number) {
         if (handled) throw new Error(BUILDER_LOCKED_ERROR_MESSAGE);
         priority = p;
@@ -208,15 +192,15 @@ export class Umiri implements IEventBus {
         processors.push(processor);
         return builder;
       },
-      handle(handler: Handler<T>): () => void {
+      handle(handler: Handler<T, U>): () => void {
         if (handled) throw new Error(BUILDER_LOCKED_ERROR_MESSAGE);
         handled = true;
         // 记录所有注册的 {priority, et, handlers, handlerObj} 以便后续取消
         const registered: Array<{
           priority: number;
           et: EventConstructor<T>;
-          handlers: Set<EventHandler<T>>;
-          handlerObj: EventHandler<T>;
+          handlers: Set<EventHandler<T, U>>;
+          handlerObj: EventHandler<T, U>;
         }> = [];
         ets.forEach((et) => {
           let priorityMap = umiri.handlerMap.get(priority);
@@ -229,7 +213,7 @@ export class Umiri implements IEventBus {
             handlers = new Set();
             priorityMap.set(et, handlers);
           }
-          const handlerObj: EventHandler<T> = {
+          const handlerObj: EventHandler<T, U> = {
             priority,
             block,
             timeout,
@@ -268,10 +252,10 @@ export class Umiri implements IEventBus {
    * Emit an event on the event bus and trigger the corresponding event handlers
    * @param event 要发布的事件 The event to be emitted
    */
-  async emit<T extends Event = Event, U extends SakikoAdapter = SakikoAdapter>(
-    event: T,
-    adapter: U
-  ): Promise<void> {
+  async emit<
+    T extends Event = Event,
+    U extends ISakikoAdapter = ISakikoAdapter
+  >(event: T, adapter: U): Promise<void> {
     // 获取当前的可用优先级列表
     const priorities = Array.from(this.handlerMap.keys()).sort((a, b) => b - a); // 从高到低排序
 
@@ -349,7 +333,7 @@ export class Umiri implements IEventBus {
             )(processedEvent);
           } else if (handlerObj.handler.length === 2) {
             result = await (
-              handlerObj.handler as (
+              handlerObj.handler as unknown as (
                 event: T,
                 adapter: U
               ) => void | boolean | Promise<void | boolean>

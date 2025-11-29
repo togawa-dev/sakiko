@@ -1,15 +1,14 @@
 import { randomUUID } from "node:crypto";
 import type { Sakiko } from ".";
 
-export abstract class SakikoAdapter {
-  abstract name: string;
-  abstract version: string;
-  abstract protocolName: string;
-  abstract platformName: string;
+export interface ISakikoAdapter {
+  name: string;
+  version: string;
+  protocolName: string;
+  platformName: string;
 
-  selfId = randomUUID();
-
-  abstract init(sakiko: Sakiko): void;
-  abstract start(): void | Promise<void>;
-  abstract stop(): void | Promise<void>;
+  uuid: string;
+  init(sakiko: Sakiko): void;
+  start(): void | Promise<void>;
+  stop(): void | Promise<void>;
 }
