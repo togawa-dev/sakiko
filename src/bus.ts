@@ -98,9 +98,10 @@ export type EventHandler<
  * The interface definition of event bus
  */
 export interface IEventBus {
-  on<T extends Event = Event>(
-    ...ets: EventConstructor<T>[]
-  ): EventHandlerBuilder<T>;
+  on<TEvents extends Event[]>(
+    ...ets: { [K in keyof TEvents]: EventConstructor<TEvents[K]> }
+  ): EventHandlerBuilder<TEvents[number]>;
+
   emit<T extends Event = Event, U extends SakikoAdapter = SakikoAdapter>(
     event: T,
     adapter: U
@@ -130,9 +131,13 @@ export class Umiri implements IEventBus {
    * @param ets 处理器需要监听的事件类型构造器列表 The list of event type constructors that the handler needs to listen to
    * @returns 用于链式调用以完成事件处理器构建的构建器对象 The builder object for chaining calls to complete the event handler construction
    */
-  on<T extends Event = Event, U extends SakikoAdapter = SakikoAdapter>(
-    ...ets: EventConstructor<T>[]
-  ): EventHandlerBuilder<T> {
+  on<TEvents extends Event[]>(
+    ...ets: { [K in keyof TEvents]: EventConstructor<TEvents[K]> }
+  ): EventHandlerBuilder<TEvents[number]> {
+    // 解决传入多个类型构造器参数时的泛型推导问题
+    // 把原来 on 函数内部的实现的 T 换成 TEvents[number]
+    type T = TEvents[number];
+
     // 事件类型的构造器定义
     let priority = 0;
     let block = false;
@@ -175,15 +180,15 @@ export class Umiri implements IEventBus {
         processors.push(processor);
         return builder;
       },
-      handle(handler: Handler<T, U>): () => void {
+      handle(handler: Handler<T>): () => void {
         if (handled) throw new Error(BUILDER_LOCKED_ERROR_MESSAGE);
         handled = true;
         // 记录所有注册的 {priority, et, handlers, handlerObj} 以便后续取消
         const registered: Array<{
           priority: number;
           et: EventConstructor<T>;
-          handlers: Set<EventHandler<T, U>>;
-          handlerObj: EventHandler<T, U>;
+          handlers: Set<EventHandler<T>>;
+          handlerObj: EventHandler<T>;
         }> = [];
         ets.forEach((et) => {
           let priorityMap = umiri.handlerMap.get(priority);
@@ -196,7 +201,7 @@ export class Umiri implements IEventBus {
             handlers = new Set();
             priorityMap.set(et, handlers);
           }
-          const handlerObj: EventHandler<T, U> = {
+          const handlerObj: EventHandler<T> = {
             priority,
             block,
             timeout,
@@ -306,7 +311,7 @@ export class Umiri implements IEventBus {
             result = await (
               handlerObj.handler as (
                 event: T,
-                adapter: SakikoAdapter
+                adapter: U
               ) => void | boolean | Promise<void | boolean>
             )(processedEvent, adapter);
           }

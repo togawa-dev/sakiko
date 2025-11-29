@@ -6,6 +6,7 @@ import {
   type IEventBus,
   Umiri
 } from "@/bus";
+import { ANSI_BOLD, ANSI_GREEN, ANSI_RESET } from "@/colors";
 import type { ILogger } from "@/logger";
 import { SnowFlake, type SnowFlakeOptions } from "@/utils";
 
@@ -32,6 +33,8 @@ export class Sakiko {
   private snowflake: SnowFlake;
 
   private adapters: SakikoAdapter[] = [];
+
+  private displayName = ANSI_BOLD + "sakiko" + ANSI_RESET;
 
   constructor(options?: SakikoOptions) {
     this.logger = options?.logger || console;
@@ -104,9 +107,14 @@ export class Sakiko {
     try {
       adapter.init(this);
       this.adapters.push(adapter);
-      this.info(`adapter ${adapter.name} applied.`);
+      this.info(
+        `[${this.displayName}] adapter ${ANSI_GREEN}${adapter.name}${ANSI_RESET} applied.`
+      );
     } catch (error) {
-      this.error(`failed to apply adapter ${adapter.name}:`, error);
+      this.error(
+        `[${this.displayName}] failed to apply adapter ${ANSI_GREEN}${adapter.name}${ANSI_RESET}:`,
+        error
+      );
     }
   }
 
@@ -122,7 +130,10 @@ export class Sakiko {
         try {
           await adapter.start();
         } catch (error) {
-          this.error(`failed to run adapter ${adapter.name}:`, error);
+          this.error(
+            `[${this.displayName}] failed to run adapter ${ANSI_GREEN}${adapter.name}${ANSI_RESET}:`,
+            error
+          );
         }
       })
     );
