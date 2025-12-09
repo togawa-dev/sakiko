@@ -9,7 +9,7 @@
     "main": "dist/index.cjs",
     "module": "dist/index.js",
     "dependencies": {
-        "@grouptogawa/umiri": "^2.0.0",
+        "@grouptogawa/umiri": "^2.1.2",
         "chalk": "^5.6.2",
         "tslog": "^4.10.2"
     },

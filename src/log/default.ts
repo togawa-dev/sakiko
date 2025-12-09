@@ -24,7 +24,7 @@ const customLogLevelNames: Record<number, string> = {
  * @returns 默认的 Sakiko 日志记录器实例 / the default Sakiko logger instance
  * @since 0.4.0
  */
-export function createDefaultLogger(logLevel: number = 2): ISakikoLogger {
+export function createDefaultLogger(logLevel: number = 3): ISakikoLogger {
     return new Logger({
         minLevel: logLevel,
         prettyLogTemplate: `{{mm}}.{{dd}} {{hh}}:{{MM}}:{{ss}} [{{logLevelName}}] `,

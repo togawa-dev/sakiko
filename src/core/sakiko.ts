@@ -1,11 +1,26 @@
 import type { ISakikoLogger } from "@/log/interface";
 import type { ISakikoPlugin } from "@/plugin/interface";
-import type { SakikoInit } from "./init";
+import type { SakikoInit } from "@/core/init";
 import { UmiriBus } from "@grouptogawa/umiri";
 import chalk from "chalk";
 import { createDefaultLogger } from "@/log/default";
 import { merge } from "@/utils/merge";
+import type { SakikoBot } from "./bot";
+import type { MatcherBuilder } from "./matcher";
 
+/**
+ * Sakiko 框架的核心类
+ *
+ * sakiko 是一个模块化的聊天机器人框架，致力于简化在 TypeScript 中开发跨平台聊天机器人的流程。
+ *
+ * 你可以在 [Sakiko 的文档网站](https://grouptogawa.github.io/togawa-docs/) 上找到更多信息。
+ *
+ * the core class of the Sakiko framework
+ * 
+ * sakiko is a modular chatbot framework that aims to simplify the process of developing cross-platform chatbots in TypeScript.
+
+ * You can find more information on [the documentation site of Sakiko](https://grouptogawa.github.io/togawa-docs/).
+ */
 export class Sakiko {
     protected readonly _name: string = "sakiko";
     protected readonly _displayName: string =
@@ -19,6 +34,7 @@ export class Sakiko {
     private _inited: boolean = false;
 
     private _plugins: Set<ISakikoPlugin> = new Set();
+    private _bots: Map<string, SakikoBot<any>> = new Map();
 
     /**
      * 获取 Sakiko 中存储的日志记录器
@@ -74,7 +90,7 @@ export class Sakiko {
      *
      * @returns 带有 Sakiko 显示名称的日志记录器 / the logger with Sakiko display name
      */
-    private getSakikoLogger(): ISakikoLogger {
+    getSakikoLogger(): ISakikoLogger {
         return this.getNamedLogger(this.displayName);
     }
 
@@ -118,6 +134,17 @@ export class Sakiko {
     }
 
     /**
+     * 获取 Sakiko 实例中存储的机器人实例映射
+     *
+     * get the bot instance map stored in the Sakiko instance
+     *
+     * @returns Sakiko 实例中存储的机器人实例映射 / the bot instance map stored in the Sakiko instance
+     */
+    get bots(): Map<string, SakikoBot<any>> {
+        return this._bots;
+    }
+
+    /**
      * 使用给定的初始化配置初始化 Sakiko 实例
      *
      * initialize the Sakiko instance with the given initialization configuration
@@ -125,8 +152,11 @@ export class Sakiko {
      * @param init - 初始化配置 / the initialization configuration
      */
     init(init?: SakikoInit) {
-        const ascii_art = chalk.hex("#7799CC")(
-            `
+        // TODO: 使init中的配置项可以覆盖withConfig传入的配置项
+
+        if (!init?.noAsciiArt) {
+            const ascii_art = chalk.hex("#7799CC")(
+                `
     ██                                  ██     
    ██            ▄▄     ▀▀  ▄▄           ██    
   ██ ▄█▀▀▀  ▀▀█▄ ██ ▄█▀ ██  ██ ▄█▀ ▄███▄  ██   
@@ -139,9 +169,10 @@ ${chalk.reset(`A modular chatbot framework project for ${chalk.bold.underline("T
 ${chalk.gray(`- For more information or documents about the project, see https://grouptogawa.github.io/togawa-docs/`)}
 ${chalk.gray(`- @GroupTogawa 2025 | MIT License`)}
     `
-        );
-        // 打印 ASCII 字符画
-        console.log(chalk.cyan(ascii_art));
+            );
+            // 打印 ASCII 字符画
+            console.log(chalk.cyan(ascii_art));
+        }
 
         // 如果没有提供 logger，则创建一个默认的 tslog logger
         this._logger = init?.logger ?? createDefaultLogger(init?.logLevel);
@@ -324,6 +355,40 @@ ${chalk.gray(`- @GroupTogawa 2025 | MIT License`)}
     }
 
     /**
+     * 根据机器人 ID 获取对应的 Sakiko 机器人实例
+     *
+     * get the corresponding Sakiko bot instance by bot ID
+     *
+     * @param selfId - 机器人的 ID / the ID of the bot
+     * @returns 对应的 Sakiko 机器人实例 / the corresponding Sakiko bot instance
+     */
+    getBot(selfId: string): SakikoBot<any> | undefined {
+        return this._bots.get(selfId);
+    }
+
+    /**
+     * 向 Sakiko 实例添加一个机器人实例
+     *
+     * add a bot instance to the Sakiko instance
+     *
+     * @param bot - 要添加的机器人实例 / the bot instance to add
+     */
+    addBot(bot: SakikoBot<any>): void {
+        this._bots.set(bot.selfId, bot);
+    }
+
+    /**
+     * 从 Sakiko 实例中移除一个机器人实例
+     *
+     * remove a bot instance from the Sakiko instance
+     *
+     * @param selfId - 要移除的机器人的 ID / the ID of the bot to remove
+     */
+    removeBot(selfId: string): void {
+        this._bots.delete(selfId);
+    }
+
+    /**
      * 启动 Sakiko 实例，运行已安装的插件的启动前钩子
      *
      * start the Sakiko instance and run the installed plugins' before start hooks
@@ -403,5 +468,33 @@ ${chalk.gray(`- @GroupTogawa 2025 | MIT License`)}
 
         // 发送 sigint 信号保证进程退出
         process.kill(process.pid, "SIGINT");
+    }
+
+    /**
+     * 注册一个事件匹配器到 Sakiko 实例的事件总线
+     *
+     * register an event matcher to the event bus of the Sakiko instance
+     *
+     * @param matcher - 要注册的事件匹配器 / the event matcher to register
+     * @returns 注销该事件匹配器的函数 / the function to unregister the event matcher
+     */
+    match(matcher: MatcherBuilder<any, any, any>) {
+        // 把matcher构建成事件处理器并注册到bus上
+        try {
+            const handler = matcher.build(this);
+            const unregister = this.bus.register(handler);
+            return unregister;
+        } catch (e) {
+            this.getSakikoLogger().error(
+                `failed to register matcher for bot ${matcher.bot.name}:`,
+                e
+            );
+            this.getSakikoLogger().error(
+                `matcher details: bot=${matcher.bot.name}, ets=[${matcher.ets
+                    .map((et) => et.name)
+                    .join(", ")}], ct=${matcher.ct.name}`
+            );
+        }
+        return () => {};
     }
 }

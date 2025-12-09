@@ -10,4 +10,5 @@ export interface SakikoInit {
     // 用于控制其他功能的配置项
 
     logLevel?: number;
+    noAsciiArt?: boolean;
 }

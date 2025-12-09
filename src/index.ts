@@ -1,17 +1,35 @@
-import { Sakiko } from "./core/sakiko";
-import { sakiko } from "./global";
+// 导出需要导出的部分
 
-sakiko.init();
+// core
 
-const p1 = {
-    async install(sakiko: Sakiko) {
-        return true;
-    },
-    uninstall() {
-        return true;
-    },
-    cleanup() {}
-};
-await sakiko.install(p1);
+export { SakikoBot } from "./core/bot";
+export {
+    SakikoContext,
+    type hasMatchResult,
+    type hasRegexResult,
+    MatchContext,
+    RegexContext
+} from "./core/context";
+export {
+    SakikoEvent,
+    type hasSender,
+    type hasTarget,
+    type Messageable
+} from "./core/event";
+export { MatcherBuilder, buildMatcherFor } from "./core/matcher";
+export { startswith, endswith, fullmatch, contains, regex } from "./core/mw";
+export { Sakiko } from "./core/sakiko";
 
-await sakiko.run();
+// log
+
+export { type ISakikoLogger, isSakikoLogger } from "./log/interface";
+
+// plugin
+
+export { SakikoAdapter } from "./plugin/adapter";
+export { type ISakikoPlugin } from "./plugin/interface";
+
+// utils
+
+export { merge } from "./utils/merge";
+export { sf } from "./utils/snowflake";
