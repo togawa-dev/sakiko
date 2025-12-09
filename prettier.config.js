@@ -1,6 +1,6 @@
 const config = {
     trailingComma: "none",
-    tabWidth: 2
+    tabWidth: 4
 };
 
 export default config;
