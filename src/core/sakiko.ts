@@ -25,7 +25,7 @@ export class Sakiko {
     protected readonly _name: string = "sakiko";
     protected readonly _displayName: string =
         "[" + chalk.green(this._name) + "]";
-    protected readonly _version: string = "0.4.5";
+    protected readonly _version: string = "0.4.6";
 
     private _logger?: ISakikoLogger;
     private _bus?: UmiriBus;
@@ -65,16 +65,18 @@ export class Sakiko {
             _logger: logger,
             _displayName: displayName,
             trace(...args: any[]) {
-                this._logger.trace(this._displayName, ...args);
+                this._logger.trace(
+                    chalk.cyanBright(this._displayName, ...args)
+                );
             },
             debug(...args: any[]) {
-                this._logger.debug(this._displayName, ...args);
+                this._logger.debug(chalk.gray(this._displayName, ...args));
             },
             info(...args: any[]) {
                 this._logger.info(this._displayName, ...args);
             },
             warn(...args: any[]) {
-                this._logger.warn(this._displayName, ...args);
+                this._logger.warn(chalk.yellow(this._displayName, ...args));
             },
             error(...args: any[]) {
                 this._logger.error(this._displayName, ...args);
@@ -92,6 +94,10 @@ export class Sakiko {
      */
     getSakikoLogger(): ISakikoLogger {
         return this.getNamedLogger(this.displayName);
+    }
+
+    getBusLogger(): ISakikoLogger {
+        return this.getNamedLogger("[" + chalk.gray("bus") + "]");
     }
 
     /**
@@ -470,7 +476,7 @@ ${chalk.gray(`- @GroupTogawa 2025 | MIT License`)}
 
             this.getSakikoLogger().info("shutdown complete, exiting.");
             this.getSakikoLogger().info(
-                `${chalk.hex("#7799CC")("█") + chalk.hex("#335566")("█") + chalk.hex("#BB9955")("█") + chalk.hex("#AA4477")("█") + chalk.hex("#779977")("█")}goodbye.`
+                `Goodbye/^. ${chalk.hex("#7799CC")("█") + chalk.hex("#335566")("█") + chalk.hex("#BB9955")("█") + chalk.hex("#AA4477")("█") + chalk.hex("#779977")("█")}`
             );
 
             process.exit(0); // 只有等所有插件 stop 完再真正退出
