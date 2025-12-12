@@ -1,4 +1,5 @@
 import type { ISakikoLogger } from "../log/interface";
+import type { MatcherBuilder } from "src/core/matcher";
 import type { Sakiko } from "../core/sakiko";
 
 export interface ISakikoPlugin {
@@ -16,6 +17,10 @@ export interface ISakikoPlugin {
     uninstall(sakiko: Sakiko): boolean | Promise<boolean>;
 
     cleanup(): void | Promise<void>;
+
+    addMatcher?(...matcher: MatcherBuilder<any, any, any>[]): void;
+
+    removeMatcher?(...matcher: MatcherBuilder<any, any, any>[]): void;
 
     // 可选的生命周期钩子函数
 

@@ -28,7 +28,11 @@ export type MatcherFn<
     Bot extends SakikoBot<any>,
     Context extends IHandlerContext,
     Event extends SakikoEvent<any, Bot>
-> = (bot: Bot, event: Event, context: Context) => Promise<boolean> | boolean;
+> = (
+    bot: Bot,
+    event: Event,
+    context: Context
+) => Promise<boolean> | boolean | void | Promise<void>;
 
 export type ExtractBotType<E> = E extends SakikoEvent<any, infer B> ? B : never;
 

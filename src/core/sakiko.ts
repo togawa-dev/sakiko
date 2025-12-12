@@ -25,7 +25,7 @@ export class Sakiko {
     protected readonly _name: string = "sakiko";
     protected readonly _displayName: string =
         "[" + chalk.green(this._name) + "]";
-    protected readonly _version: string = "0.4.8";
+    protected readonly _version: string = "0.4.9";
 
     private _logger?: ISakikoLogger;
     private _bus?: UmiriBus;
@@ -35,6 +35,9 @@ export class Sakiko {
 
     private _plugins: Set<ISakikoPlugin> = new Set();
     private _bots: Map<string, SakikoBot<any>> = new Map();
+
+    private _matchers: Map<MatcherBuilder<any, any, any>, (() => void) | null> =
+        new Map();
 
     /**
      * 获取 Sakiko 中存储的日志记录器
@@ -159,7 +162,7 @@ export class Sakiko {
      * @param init - 初始化配置 / the initialization configuration
      */
     init(init?: SakikoInit) {
-        // TODO: 使init中的配置项可以覆盖withConfig传入的配置项
+        // TODO: 使withConfig中的配置项可以覆盖init传入的配置项
 
         if (!init?.noAsciiArt) {
             const ascii_art = chalk.hex("#7799CC")(
@@ -447,6 +450,9 @@ ${chalk.gray(`- @GroupTogawa 2025 | MIT License`)}
             }
         }
 
+        // 注册所有已注册的事件匹配器到事件总线
+        this._registerMatchers();
+
         const endTime = Date.now();
         const duration = endTime - startTime;
         this.getSakikoLogger().info(
@@ -510,6 +516,9 @@ ${chalk.gray(`- @GroupTogawa 2025 | MIT License`)}
             await this.uninstall(plugin);
         }
 
+        // 注销所有已注册的事件匹配器（以防出现插件未完全卸载导致的残留）
+        this._unregisterMatchers();
+
         // 发送 sigint 信号保证进程退出
         process.kill(process.pid, "SIGINT");
     }
@@ -523,19 +532,78 @@ ${chalk.gray(`- @GroupTogawa 2025 | MIT License`)}
      * @returns 注销该事件匹配器的函数 / the function to unregister the event matcher
      */
     match(matcher: MatcherBuilder<any, any, any>) {
-        // 把matcher构建成事件处理器并注册到bus上
-        try {
-            const handler = matcher.build(this);
-            const unregister = this.bus.register(handler);
-            return unregister;
-        } catch (e) {
-            this.getSakikoLogger().error(
-                `failed to register matcher with details: ets=[${matcher.ets
-                    .map((et) => et.name)
-                    .join(", ")}], ct=${matcher.ct.name}`,
-                e
+        // 把 Matcher 存储到映射中，初始值为null
+        this._matchers.set(matcher, null);
+    }
+
+    /**
+     * 从 Sakiko 实例的事件总线中注销一个事件匹配器
+     *
+     * unregister an event matcher from the event bus of the Sakiko instance
+     *
+     * @param matcher - 要注销的事件匹配器 / the event matcher to unregister
+     */
+    unmatch(matcher: MatcherBuilder<any, any, any>) {
+        const unregister = this._matchers.get(matcher);
+        if (unregister) {
+            unregister();
+        } else {
+            this.getSakikoLogger().warn(
+                `this matcher is matched but haven't registered yet, skip unregister.`
             );
         }
-        return () => {};
+        this._matchers.delete(matcher);
+    }
+
+    /**
+     * 将所有已注册的事件匹配器注册到 Sakiko 实例的事件总线
+     *
+     * register all registered event matchers to the event bus of the Sakiko instance
+     */
+    private _registerMatchers() {
+        const matchers = Array.from(this._matchers.keys());
+        const matcherCount = matchers.length;
+        if (matcherCount === 0) {
+            this.getSakikoLogger().debug("no matchers to register");
+            return;
+        }
+        this.getSakikoLogger().debug(
+            `registering ${matcherCount} matchers to event bus`
+        );
+        for (const matcher of matchers) {
+            try {
+                // 把 matcher 构建成事件处理器并注册到 bus 上
+                const handler = matcher.build(this);
+                const unregister = this.bus.register(handler);
+                this._matchers.set(matcher, unregister);
+            } catch (e) {
+                this.getSakikoLogger().error(
+                    `failed to register matcher with details: ets=[${matcher.ets
+                        .map((et) => et.name)
+                        .join(", ")}], ct=${matcher.ct.name}`,
+                    e
+                );
+            }
+        }
+    }
+
+    /**
+     * 从 Sakiko 实例的事件总线中注销所有已注册的事件匹配器
+     *
+     * unregister all registered event matchers from the event bus of the Sakiko instance
+     */
+    private _unregisterMatchers() {
+        const matchers = Array.from(this._matchers.keys());
+        const matcherCount = matchers.length;
+        if (matcherCount === 0) {
+            this.getSakikoLogger().debug("no matchers to unregister");
+            return;
+        }
+        this.getSakikoLogger().debug(
+            `unregistering ${matcherCount} matchers from event bus`
+        );
+        for (const matcher of matchers) {
+            this.unmatch(matcher);
+        }
     }
 }

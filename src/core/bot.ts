@@ -1,3 +1,4 @@
+import type { ISakikoLogger } from "src/log/interface";
 import type { SakikoAdapter } from "../plugin/adapter";
 
 export abstract class SakikoBot<T extends SakikoAdapter> {
@@ -33,6 +34,10 @@ export abstract class SakikoBot<T extends SakikoAdapter> {
 
     get nickname(): string {
         return this._nickname;
+    }
+
+    get logger(): ISakikoLogger {
+        return this._adapter.logger!;
     }
 
     abstract callApi(action: string, params: any): Promise<any>;

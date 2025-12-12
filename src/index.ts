@@ -39,6 +39,7 @@ export { type ISakikoLogger, isSakikoLogger } from "./log/interface";
 
 export { SakikoAdapter } from "./plugin/adapter";
 export { type ISakikoPlugin } from "./plugin/interface";
+export { createPlugin, ExtendablePlugin } from "./plugin/builder";
 
 // utils
 
