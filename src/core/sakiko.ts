@@ -162,7 +162,7 @@ export class Sakiko {
      * @param init - 初始化配置 / the initialization configuration
      */
     init(init?: SakikoInit) {
-        // TODO: 使withConfig中的配置项可以覆盖init传入的配置项
+        init = this._overrideInitConfig(init);
 
         if (!init?.noAsciiArt) {
             const ascii_art = chalk.hex("#7799CC")(
@@ -207,6 +207,25 @@ ${chalk.gray(`- @GroupTogawa 2025 | MIT License`)}
             throw e;
         }
         this._config = merge(this._config, conf);
+    }
+
+    private _overrideInitConfig(init?: SakikoInit) {
+        if (!init) init = {};
+
+        // 从withConfig 传入的配置项中提取可能覆盖init传入的配置项
+        const logLevel = this.config.get<number>("logLevel");
+        if (logLevel !== undefined && typeof logLevel === "number") {
+            // 覆盖日志记录器的日志级别
+            init.logLevel = logLevel;
+        }
+
+        const noAsciiArt = this.config.get<boolean>("noAsciiArt");
+        if (noAsciiArt !== undefined && typeof noAsciiArt === "boolean") {
+            // 覆盖是否显示 ASCII 字符画的配置项
+            init.noAsciiArt = noAsciiArt;
+        }
+
+        return init;
     }
 
     /**
