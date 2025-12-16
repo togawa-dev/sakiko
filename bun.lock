@@ -53,6 +53,7 @@
       "peerDependencies": {
         "@togawa-dev/sakiko": "workspace:^",
         "@togawa-dev/sakiko-adapter-onebot": "workspace:^",
+        "@togawa-dev/uika": "workspace:^",
         "@togawa-dev/umiri": "workspace:^",
         "@togawa-dev/utils": "workspace:^",
       },
@@ -60,6 +61,10 @@
     "packages/uika": {
       "name": "@togawa-dev/uika",
       "version": "1.0.0",
+      "peerDependencies": {
+        "@togawa-dev/umiri": "workspace:^",
+        "@togawa-dev/utils": "workspace:^",
+      },
     },
     "packages/umiri": {
       "name": "@togawa-dev/umiri",

@@ -63,16 +63,26 @@ export class Sakiko {
         return this._snowflake;
     }
 
-    ofEvent<Events extends UmiriEvent<any, any>[]>(
+    match<Events extends UmiriEvent<any, any>[]>(
         ...ets: { [K in keyof Events]: UmiriEventConstructor<Events[K]> }
-    ) {
-        type Bot = ExtractBotType<Events[number]>;
-        type Context = UmiriContext<Bot, Events>;
-        return new MatcherBuilder<Bot, Events, Context>(this, ets);
-    }
+    ): MatcherBuilder<
+        ExtractBotType<Events[number]>,
+        Events,
+        UmiriContext<ExtractBotType<Events[number]>, Events>
+    >;
+    match(...matchers: UmiriEventMatcher<any, any>[]): number;
+    match(...args: any[]) {
+        // 将传入事件构造器作为参数的情况重载到生成 MatcherBuilder
+        if (typeof args[0] === "function") {
+            type Events = UmiriEvent<any, any>[];
+            type Bot = ExtractBotType<Events[number]>;
+            type Ctx = UmiriContext<Bot, Events>;
+            return new MatcherBuilder<Bot, Events, Ctx>(this, args);
+        }
 
-    match(...matcherBuilder: UmiriEventMatcher<any, any>[]) {
-        for (const matcher of matcherBuilder) {
+        // 将传入匹配器作为参数的情况重载到注册匹配器
+        const matchers = args as UmiriEventMatcher<any, any>[];
+        for (const matcher of matchers) {
             if (!this._matchers.includes(matcher)) {
                 this._matchers.push(matcher);
             }

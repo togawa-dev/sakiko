@@ -28,34 +28,34 @@ export class MatcherBuilder<
         }
     ) {}
 
-    priority(priority: number) {
+    atPriority(priority: number) {
         this._priority = priority;
         return this;
     }
 
-    block(block: boolean = true) {
+    withBlock(block: boolean = true) {
         this._block = block;
         return this;
     }
 
-    timeout(timeout: number) {
+    withTimeout(timeout: number) {
         this._timeout = timeout;
         return this;
     }
 
-    apply<Next extends Context = Context>(
+    withFilter<Next extends Context = Context>(
         mw: UmiriEventMiddleware<Context, Next>
     ) {
         this._mws.push(mw);
         return this as unknown as MatcherBuilder<Bot, Events, Next>;
     }
 
-    action(fn: UmiriEventMatcherFn<Context>) {
+    run(fn: UmiriEventMatcherFn<Context>) {
         this._fn = fn;
         return this;
     }
 
-    match() {
+    commit() {
         const matcher: UmiriEventMatcher<Context, Events[number]> = {
             ets: this.ets,
             priority: this._priority,

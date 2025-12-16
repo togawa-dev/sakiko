@@ -10,13 +10,18 @@
     "bugs": {
         "url": "https://github.com/togawa-dev/sakiko/issues"
     },
-    "main": "dist/index.cjs",
-    "module": "dist/index.js",
+    "main": "dist/index.js",
+    "module": "dist/index.mjs",
     "exports": {
         ".": {
             "types": "./dist/index.d.ts",
-            "import": "./dist/index.js",
-            "require": "./dist/index.cjs"
+            "import": "./dist/index.mjs",
+            "require": "./dist/index.js"
+        },
+        "./matcher": {
+            "types": "./dist/matcher/index.d.ts",
+            "import": "./dist/matcher/index.mjs",
+            "require": "./dist/matcher/index.js"
         },
         "./package.json": "./package.json"
     },
@@ -27,6 +32,12 @@
     ],
     "author": "machinacanis <machinacanis@outlook.com>",
     "peerDependencies": {
-        "@togawa-dev/umiri": "workspace:^"
+        "@togawa-dev/umiri": "workspace:^",
+        "@togawa-dev/utils": "workspace:^"
+    },
+    "scripts": {
+        "build": "tsup",
+        "clean": "rm -rf dist",
+        "prepublishOnly": "bun run build"
     }
 }
