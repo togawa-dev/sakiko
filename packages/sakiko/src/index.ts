@@ -1,2 +1,2 @@
-export { Sakiko } from "./sakiko";
-export { type ISakikoPlugin } from "./plugin";
+export { Sakiko } from "./core/sakiko";
+export { type ISakikoPlugin } from "./core/plugin";

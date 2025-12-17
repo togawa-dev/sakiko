@@ -10,18 +10,20 @@
     "bugs": {
         "url": "https://github.com/togawa-dev/sakiko/issues"
     },
-    "main": "dist/index.js",
     "module": "dist/index.mjs",
+    "type": "module",
     "exports": {
         ".": {
             "types": "./dist/index.d.ts",
-            "import": "./dist/index.mjs",
-            "require": "./dist/index.js"
+            "import": "./dist/index.mjs"
         },
-        "./matcher": {
-            "types": "./dist/matcher/index.d.ts",
-            "import": "./dist/matcher/index.mjs",
-            "require": "./dist/matcher/index.js"
+        "./filter": {
+            "types": "./dist/filter/index.d.ts",
+            "import": "./dist/filter/index.mjs"
+        },
+        "./filter-fuzzy": {
+            "types": "./dist/filter-fuzzy/index.d.ts",
+            "import": "./dist/filter-fuzzy/index.mjs"
         },
         "./package.json": "./package.json"
     },
@@ -39,5 +41,8 @@
         "build": "tsup",
         "clean": "rm -rf dist",
         "prepublishOnly": "bun run build"
+    },
+    "optionalDependencies": {
+        "fuse.js": "^7.1.0"
     }
 }

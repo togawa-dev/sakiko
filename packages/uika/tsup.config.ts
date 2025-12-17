@@ -9,16 +9,17 @@ const pkg = JSON.parse(
 export default defineConfig({
     entry: {
         index: "src/index.ts",
-        "matcher/index": "src/matcher/index.ts"
+        "filter/index": "src/filter/index.ts",
+        "filter-fuzzy/index": "src/filter-fuzzy/index.ts"
     },
     outDir: "dist",
-    format: ["esm", "cjs"],
+    format: ["esm"],
     dts: true,
     sourcemap: true,
     clean: true,
     treeshake: true,
     splitting: false,
-    minify: false,
+    minify: true,
 
     esbuildOptions(options) {
         options.define = {

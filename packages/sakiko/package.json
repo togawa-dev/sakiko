@@ -1,6 +1,6 @@
 {
     "name": "@togawa-dev/sakiko",
-    "description": "A local event bus implementation with priority and type support",
+    "description": "A simple and scalable chatbot framework, but stupidly powerful.",
     "version": "0.5.0",
     "license": "MIT",
     "repository": {
@@ -10,13 +10,12 @@
     "bugs": {
         "url": "https://github.com/togawa-dev/sakiko/issues"
     },
-    "main": "dist/index.cjs",
+    "type": "module",
     "module": "dist/index.js",
     "exports": {
         ".": {
             "types": "./dist/index.d.ts",
-            "import": "./dist/index.js",
-            "require": "./dist/index.cjs"
+            "import": "./dist/index.js"
         },
         "./package.json": "./package.json"
     },

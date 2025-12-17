@@ -8,41 +8,52 @@ import type { UmiriEventMatcher } from "./matcher";
 import { createUmiriContext } from "./context";
 
 /**
- * Umiri 事件总线
+ * 基于类型系统和优先级机制的本地事件总线实现
  *
- * Umiri Event Bus
+ * A local event bus implementation based on type system and priority mechanism
  */
 export class Umiri {
+    // 匹配器映射，按照 优先级 -> 事件类型 -> 事件匹配器 集合 三级结构存储
+    // The matcher mapping, stored in a three-level structure according to priority -> event type -> set of event matchers
     private matchersMap = new Map<
         number,
         Map<UmiriEventConstructor<any>, Set<UmiriEventMatcher<any, any>>>
     >();
 
+    // 已注册的事件匹配器的引用的集合，用于避免重复注册
+    // A set of references to registered event matchers, used to avoid duplicate registrations
     private registeredMatchers = new Set<UmiriEventMatcher<any, any>>();
 
+    // 是否启动事件处理的标志
+    // A flag indicating whether event handling is started
     private handling: boolean = false;
 
     constructor(
-        protected readonly sfNode: SnowFlake,
-        protected readonly logger: ILogger = console
+        protected readonly sfNode: SnowFlake, // 初始化时需要传入一个 SnowFlake 实例用于处理流程中的唯一 ID 生成 / A SnowFlake instance needs to be passed in during initialization for generating unique IDs in the processing flow
+        protected readonly logger: ILogger = console // 日志记录器，默认为控制台 / Logger, default to console
     ) {}
 
+    /** 获取 Umiri 的版本号 / Get the version of Umiri */
     get version() {
         return VERSION;
     }
 
+    /** 获取 Umiri 的包名 / Get the package name of Umiri */
     get pkgName() {
         return PKG_NAME;
     }
 
+    /** 获取已注册的事件匹配器总数 / Get the total number of registered event matchers */
     getTotalRegisteredMatcherCount() {
         return this.registeredMatchers.size;
     }
 
+    /** 获取已注册的优先级总数 / Get the total number of registered priorities */
     getTotalRegisteredPriorityCount() {
         return this.matchersMap.size;
     }
 
+    /** 获取已注册的事件类型总数 / Get the total number of registered event types */
     getTotalRegisteredEventTypeCount() {
         const countedEventTypes = new Set<UmiriEventConstructor<any>>();
         for (const priorityMap of this.matchersMap.values()) {
@@ -51,15 +62,18 @@ export class Umiri {
         return countedEventTypes.size;
     }
 
+    /** 启动事件处理 / Start event handling */
     startHandling() {
         this.handling = true;
     }
 
+    /** 停止事件处理 / Stop event handling */
     stopHandling() {
         this.handling = false;
     }
 
-    match(...ems: UmiriEventMatcher<any, any>[]) {
+    /** 注册事件匹配器 / Register event matchers */
+    register(...ems: UmiriEventMatcher<any, any>[]) {
         for (const eh of ems) {
             if (this.registeredMatchers.has(eh)) continue; // 这个事件匹配器已经被注册过，跳过
             // 遍历每个事件类型
@@ -86,10 +100,11 @@ export class Umiri {
         }
 
         // 返回一个取消注册的函数
-        return () => this.unmatch(...ems);
+        return () => this.unregister(...ems);
     }
 
-    unmatch(...ems: UmiriEventMatcher<any, any>[]) {
+    /** 注销事件匹配器 / Unregister event matchers */
+    unregister(...ems: UmiriEventMatcher<any, any>[]) {
         for (const eh of ems) {
             if (!this.registeredMatchers.has(eh)) continue; // 这个事件匹配器没有被注册过，跳过
             // 遍历每个事件类型
@@ -113,6 +128,7 @@ export class Umiri {
         }
     }
 
+    /** 发布事件 / Publish events */
     async publish<Bot extends UmiriBot, Event extends UmiriEvent<any, Bot>>(
         bot: Bot,
         event: Event
@@ -165,7 +181,7 @@ export class Umiri {
                     let ctn = true; // 标识是否继续处理的 flag
 
                     for (const mw of matcher.mws || []) {
-                        const [newC, isCtn] = mw(c);
+                        const [newC, isCtn] = await mw(c);
                         c = newC;
                         if (!isCtn) {
                             // 中间件取消了处理，跳过这个处理流程

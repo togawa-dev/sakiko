@@ -7,7 +7,7 @@ import type {
     UmiriEventConstructor,
     UmiriEventMatcher
 } from "@togawa-dev/umiri";
-import { PKG_NAME, VERSION } from "./global";
+import { PKG_NAME, VERSION } from "../global";
 
 import type { ILogger } from "@togawa-dev/utils";
 import { MatcherBuilder } from "./matcher-builder";
@@ -99,6 +99,10 @@ export class Sakiko {
     removeBot(selfId: string) {
         this._bots.delete(selfId);
     }
+
+    load() {}
+
+    unload() {}
 
     run() {}
 

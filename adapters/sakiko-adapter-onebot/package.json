@@ -10,18 +10,16 @@
     "bugs": {
         "url": "https://github.com/togawa-dev/sakiko/issues"
     },
-    "main": "dist/index.cjs",
     "module": "dist/index.js",
+    "type": "module",
     "exports": {
         ".": {
             "types": "./dist/index.d.ts",
-            "import": "./dist/index.js",
-            "require": "./dist/index.cjs"
+            "import": "./dist/index.js"
         },
         "./v11": {
             "types": "./dist/v11/index.d.ts",
-            "import": "./dist/v11/index.js",
-            "require": "./dist/v11/index.cjs"
+            "import": "./dist/v11/index.js"
         },
         "./package.json": "./package.json"
     },

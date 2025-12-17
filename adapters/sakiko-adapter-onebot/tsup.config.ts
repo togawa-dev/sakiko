@@ -12,7 +12,7 @@ export default defineConfig({
         "v11/index": "src/v11/index.ts"
     },
     outDir: "dist",
-    format: ["esm", "cjs"],
+    format: ["esm"],
     dts: true,
     sourcemap: true,
     clean: true,

@@ -9,7 +9,7 @@ const pkg = JSON.parse(
 export default defineConfig({
     entry: ["src/index.ts"],
     outDir: "dist",
-    format: ["esm", "cjs"],
+    format: ["esm"],
     dts: true,
     sourcemap: true,
     clean: true,

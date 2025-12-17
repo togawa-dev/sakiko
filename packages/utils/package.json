@@ -10,28 +10,24 @@
     "bugs": {
         "url": "https://github.com/togawa-dev/sakiko/issues"
     },
-    "main": "dist/index.cjs",
     "module": "dist/index.js",
+    "type": "module",
     "exports": {
         ".": {
             "types": "./dist/index.d.ts",
-            "import": "./dist/index.mjs",
-            "require": "./dist/index.cjs"
+            "import": "./dist/index.mjs"
         },
         "./context": {
             "types": "./dist/context/index.d.ts",
-            "import": "./dist/context/index.mjs",
-            "require": "./dist/context/index.cjs"
+            "import": "./dist/context/index.mjs"
         },
         "./snowflake": {
             "types": "./dist/snowflake/index.d.ts",
-            "import": "./dist/snowflake/index.mjs",
-            "require": "./dist/snowflake/index.cjs"
+            "import": "./dist/snowflake/index.mjs"
         },
         "./mixin": {
             "types": "./dist/mixin/index.d.ts",
-            "import": "./dist/mixin/index.mjs",
-            "require": "./dist/mixin/index.cjs"
+            "import": "./dist/mixin/index.mjs"
         },
         "./package.json": "./package.json"
     },
