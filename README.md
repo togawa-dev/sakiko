@@ -51,13 +51,13 @@ npm i @togawa-dev/sakiko
 ### 最小示例 / Minimal Example
 
 ```typescript
-import { Sakiko } from "@togawa-dev/sakiko";
-import { fullmatch } from "@togawa-dev/uika/filter";
+import { sakiko } from "@togawa-dev/sakiko";
+import { fullMatch } from "@togawa-dev/uika/filter";
 
 sakiko
     .match(ExampleEvent)
     .withPriority(1)
-    .withFilter(fullmatch("foobar"))
+    .withFilter(fullMatch("foobar"))
     .withFilter((ctx) => [mergeContext(ctx, { foo: "baz" }), true])
     .run(async (ctx) => {
         ctx.send(`Hello, World! And you merged ${ctx.foo}`);

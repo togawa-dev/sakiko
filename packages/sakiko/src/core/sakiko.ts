@@ -12,18 +12,26 @@ import { PKG_NAME, VERSION } from "../global";
 import type { ILogger } from "@togawa-dev/utils";
 import { MatcherBuilder } from "./matcher-builder";
 import { snowflake, type SnowFlake } from "@togawa-dev/utils/snowflake";
+import type { SakikoConfig } from "./config";
+import { asciiArt } from "./ascii-art";
 
-export class Sakiko {
+export class Sakiko<Config extends SakikoConfig = SakikoConfig> {
+    // 一些生命周期标志量
     private _started = false;
     private _withBlock = false;
 
+    // 一些常用内部实例
     private _logger: ILogger = console;
     private _bus?: Umiri;
     private _snowflake: SnowFlake = snowflake;
 
-    private _config: Record<string, any> = {};
+    // 存储配置项
+    private _config: Config = {} as Config;
+
+    // 存储机器人连接实例
     private _bots: Map<string, UmiriBot> = new Map();
 
+    // 存储未注册的事件匹配器
     private _matchers: UmiriEventMatcher<any, any>[] = [];
 
     get version() {
@@ -61,6 +69,10 @@ export class Sakiko {
 
     get snowflake() {
         return this._snowflake;
+    }
+
+    defineConfig<NewConfig extends SakikoConfig>(conf: NewConfig) {
+        this._config = { ...this._config, ...conf };
     }
 
     match<Events extends UmiriEvent<any, any>[]>(
@@ -104,7 +116,15 @@ export class Sakiko {
 
     unload() {}
 
-    run() {}
+    start() {
+        // 标识框架进入启动状态
+        this._started = true;
 
-    runWithBlock() {}
+        // 输出字符画
+        if (!this.config.noAsciiArt) {
+            console.log(asciiArt);
+        }
+    }
+
+    startWithBlock() {}
 }
