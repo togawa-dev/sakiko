@@ -43,14 +43,6 @@ export class MilkyOutgoingMessage
                         type: "video",
                         data: { uri: seg.data.fileUrl }
                     } as outgoing.Video;
-                case "file":
-                    return {
-                        type: "image",
-                        data: {
-                            uri: seg.data.fileUrl,
-                            sub_type: "normal"
-                        }
-                    } as outgoing.Image;
                 case "mention":
                     // userId 为 "all" 时转换为 mention_all
                     if (seg.data.userId === "all") {
@@ -69,12 +61,17 @@ export class MilkyOutgoingMessage
                         data: { message_seq: BigInt(seg.data.msgId) }
                     } as outgoing.Reply;
                 case "other":
-                default:
-                    // 无法映射的消息段使用 face 作为占位符，或忽略
+                    // 尝试还原原始消息段
                     return {
-                        type: "face",
-                        data: { face_id: "0" }
-                    } as outgoing.Face;
+                        type: seg.data.originalType,
+                        data: seg.data.originalData
+                    } as OutgoingSegment;
+                default:
+                    // 其他消息段原样转换
+                    return {
+                        type: seg.type as any,
+                        data: seg.data as any
+                    } as OutgoingSegment;
             }
         });
         return new MilkyOutgoingMessage(...segments);
