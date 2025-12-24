@@ -1,12 +1,8 @@
-import type {
-    Sakiko,
-    SakikoAdapter,
-    SakikoConfig,
-    SakikoConfigExtension
-} from "@togawa-dev/sakiko";
+import type { Sakiko, SakikoAdapter, SakikoConfig } from "@togawa-dev/sakiko";
 
 import type { ILogger } from "@togawa-dev/utils";
 import { VERSION } from "./global";
+import { fetchEventSource } from "@microsoft/fetch-event-source";
 import { z } from "zod";
 
 export const baseUrlOptionSchema = z.object({
@@ -16,7 +12,7 @@ export const baseUrlOptionSchema = z.object({
      *
      * @default "https://127.0.0.1:3000"
      */
-    baseUrl: z.url().optional().default("https://127.0.0.1:3000"),
+    baseUrl: z.url().optional().default("http://127.0.0.1:3000"),
     /** Milky API 的基础 URL，如果与 baseUrl 不同，可以单独配置。
      *
      * The base URL for Milky APIs, can be configured separately if different from baseUrl.
@@ -41,6 +37,7 @@ export const baseUrlOptionSchema = z.object({
 });
 
 export type baseUrlOption = z.input<typeof baseUrlOptionSchema>;
+export type baseUrlOptionParsed = z.infer<typeof baseUrlOptionSchema>;
 
 declare module "@togawa-dev/sakiko" {
     interface SakikoConfigExtension {
@@ -101,17 +98,6 @@ export class Milky implements SakikoAdapter {
     readonly protocolName = "milky";
 
     private _logger?: ILogger;
-    private _config?: SakikoConfig;
-
-    private _sakiko?: Sakiko;
-
-    setLogger(logger: ILogger): void {
-        this._logger = logger;
-    }
-
-    setConfig(config: SakikoConfig): void {
-        this._config = config;
-    }
 
     get logger() {
         if (!this._logger) {
@@ -120,6 +106,8 @@ export class Milky implements SakikoAdapter {
         return this._logger;
     }
 
+    private _config?: SakikoConfig;
+
     get config() {
         if (!this._config) {
             throw new Error("config has not been set for this plugin");
@@ -127,11 +115,21 @@ export class Milky implements SakikoAdapter {
         return this._config;
     }
 
+    private _sakiko?: Sakiko;
+
     get sakiko() {
         if (!this._sakiko) {
             throw new Error("sakiko has not been injected for this plugin");
         }
         return this._sakiko;
+    }
+
+    setLogger(logger: ILogger): void {
+        this._logger = logger;
+    }
+
+    setConfig(config: SakikoConfig): void {
+        this._config = config;
     }
 
     async onLoad(sakiko: Sakiko): Promise<void | boolean> {
@@ -145,4 +143,47 @@ export class Milky implements SakikoAdapter {
     }
 
     async onShutDown(): Promise<void> {}
+
+    async createSSEClient(option: baseUrlOptionParsed, accessCode?: string) {
+        const eventUrl = option.eventBaseUrl
+            ? new URL(option.eventBaseUrl)
+            : new URL("/events", new URL(option.baseUrl));
+
+        const adapter = this;
+
+        // 创建并返回 SSE 客户端实例
+        fetchEventSource(eventUrl.toString(), {
+            headers: {
+                Authorization: accessCode ? `Bearer ${accessCode}` : ""
+            },
+
+            async onmessage(ev) {
+                // TODO: 处理事件负载
+            },
+
+            onerror(err) {
+                adapter.logger.error(
+                    `SSE connection error for Milky server at ${eventUrl.toString()}: ${err}`
+                );
+            },
+
+            async onopen(response) {
+                if (response.ok) {
+                    adapter.logger.debug(
+                        `SSE connection established for Milky server at ${eventUrl.toString()}`
+                    );
+                } else {
+                    adapter.logger.error(
+                        `SSE connection failed for Milky server at ${eventUrl.toString()}: ${response.status} ${response.statusText}`
+                    );
+                }
+            },
+
+            onclose() {
+                adapter.logger.warn(
+                    `SSE connection closed for Milky server at ${eventUrl.toString()}`
+                );
+            }
+        });
+    }
 }

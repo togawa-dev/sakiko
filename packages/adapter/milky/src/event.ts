@@ -187,12 +187,12 @@ export class FriendRequest extends MilkyEvent<p.FriendRequestEventData> {
         return this.payload.via;
     }
 
-    async accept(): Promise<void> {
-        // TODO: 实现接受好友请求的逻辑
+    async accept() {
+        return this.bot.acceptFriendRequest(this.getInitiatorId());
     }
 
-    async reject(): Promise<void> {
-        // TODO: 实现拒绝好友请求的逻辑
+    async reject() {
+        return this.bot.rejectFriendRequest(this.getInitiatorId());
     }
 }
 
@@ -217,12 +217,29 @@ export class GroupJoinRequest extends MilkyEvent<p.GroupJoinRequestEventData> {
         return this.payload.is_filtered;
     }
 
-    async accept(): Promise<void> {
-        // TODO: 实现接受入群请求的逻辑
+    getNoticifactionSeq(): bigint {
+        return this.payload.notification_seq;
     }
 
-    async reject(): Promise<void> {
-        // TODO: 实现拒绝入群请求的逻辑
+    async accept() {
+        return this.bot.acceptGroupRequest(
+            this.getNoticifactionSeq(),
+            "join_request",
+            this.getGroupId(),
+            this.isFiltered()
+        );
+    }
+
+    async reject(reason?: string) {
+        return this.bot.rejectGroupRequest(
+            this.getNoticifactionSeq(),
+            "join_request",
+            this.getGroupId(),
+            {
+                isFiltered: this.isFiltered(),
+                reason: reason || ""
+            }
+        );
     }
 }
 
@@ -254,12 +271,25 @@ export class GroupInvitedJoinRequest
         return this.payload.target_user_id.toString();
     }
 
-    async accept(): Promise<void> {
-        // TODO: 实现接受入群请求的逻辑
+    async accept() {
+        return this.bot.acceptGroupRequest(
+            this.payload.notification_seq,
+            "invited_join_request",
+            this.getSceneId(),
+            false
+        );
     }
 
-    async reject(): Promise<void> {
-        // TODO: 实现拒绝入群请求的逻辑
+    async reject(reason?: string) {
+        return this.bot.rejectGroupRequest(
+            this.payload.notification_seq,
+            "invited_join_request",
+            this.getSceneId(),
+            {
+                isFiltered: false,
+                reason: reason || ""
+            }
+        );
     }
 }
 
@@ -276,12 +306,22 @@ export class GroupInvitation extends MilkyEvent<p.GroupInvitationEventData> {
         return this.payload.initiator_id.toString();
     }
 
-    async accept(): Promise<void> {
-        // TODO: 实现接受入群请求的逻辑
+    getInvitationSeq(): bigint {
+        return this.payload.invitation_seq;
     }
 
-    async reject(): Promise<void> {
-        // TODO: 实现拒绝入群请求的逻辑
+    async accept() {
+        return this.bot.acceptGroupInvitation(
+            this.getGroupId(),
+            this.getInvitationSeq()
+        );
+    }
+
+    async reject() {
+        return this.bot.rejectGroupInvitation(
+            this.getGroupId(),
+            this.getInvitationSeq()
+        );
     }
 }
 
@@ -360,7 +400,7 @@ export class FriendFileUpload
 
     async save(): Promise<boolean> {
         // TODO: 实现好友文件保存逻辑
-        return false;
+        throw "Not implemented";
     }
 }
 
@@ -731,7 +771,7 @@ export class GroupFileUpload
 
     async save(): Promise<boolean> {
         // TODO: 实现群文件保存逻辑
-        return false;
+        throw "Not implemented";
     }
 }
 

@@ -1,5 +1,5 @@
 import type { UmiriBot } from "@togawa-dev/umiri";
-import type { MessageArray } from "@togawa-dev/utils/unimsg";
+import type { UniMessage } from "@togawa-dev/utils/unimsg";
 import type { HasContactId } from "../mixin/event";
 import type { Sakiko } from "./sakiko";
 import {
@@ -25,7 +25,15 @@ export type ProtocolBot<M extends APIMap> = UmiriBot & {
         data?: APIReq<M, Endpoint>
     ): Promise<APIRes<M, Endpoint>>;
 
-    send(target: string | HasContactId, ...msg: MessageArray): Promise<boolean>;
+    send(
+        target: string | HasContactId,
+        msg: UniMessage
+    ): Promise<{
+        /** 消息 ID / Message ID */
+        messageId: string;
+        /** 发送时间 / Time sent */
+        time: number;
+    }>;
 };
 
 export class ProtocolBotManager extends Map<string, ProtocolBot<any>> {
