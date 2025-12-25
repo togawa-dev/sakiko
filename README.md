@@ -2,14 +2,14 @@
 
 <div align="center">
     <img src="./avatar.png" alt="sakiko" width="200"/>
-    <h1>Sakiko （🚧 开发中分支）</h1>
+    <h1>Sakiko</h1>
     <img src="https://img.shields.io/badge/typescript-5.0+-blue?logo=typescript" alt="TS"/>
     <img src="https://img.shields.io/badge/Node.js-24.12+-green?logo=nodedotjs" alt="Node.js"/>
     <img src="https://img.shields.io/badge/Bun-1.3.2+-orange?logo=bun" alt="Bun"/>
     <a href="https://togawa-dev.github.io/docs/"><img src="https://img.shields.io/badge/docs-Github_Pages-purple?logo=docusaurus" alt="Docs"/></a>
     <p></p>
     <p>A scalable cross-platform chatbot framework, simple yet stupidly powerful.</p>
-    <p>一个可扩展、跨平台的聊天机器人框架，简单好用且功能丰富。</p>
+    <p>一个可扩展、跨平台的聊天机器人框架，简洁而不简单。</p>
 </div>
 
 > The Project Name `Sakiko` comes from the band _Ave Mujica_'s keyboardist **_豊川（とがわ） 祥子（さきこ）_** (Togawa **Sakiko** a.k.a _Oblivionis_) in the cross-media project _BanG Dream!_<br>
@@ -80,41 +80,48 @@ This workspace repository maintains the following npm packages:
 | ------------------------- | ---------------------- | -------------------------------------- |
 | `@togawa-dev/plugin-echo` | `packages/plugin/echo` | echo 插件 / echo plugin implementation |
 
-## 特性 / Features
+### 特性 / Features
 
-### 开发者友好 / Developer Friendly
+### 🚀 开发者友好 / Developer Friendly
 
-Sakiko 追求极简且语义明确的API设计，把复杂的功能封装到简洁的方法中，让开发者可以专注于业务逻辑本身的实现，而不是花时间应对框架本身。同时，Sakiko 总是倾向于使用更少的依赖来解决问题，保持框架的轻量和高效，开发者不必为庞大而臃肿的依赖树担忧。
+Sakiko 提供简洁且语义清晰的 API，将复杂能力封装在直观的方法中，让开发者专注于业务本身，而不是框架细节。
+框架坚持少依赖、轻量化设计，避免臃肿的依赖树，保持高效与可维护性。
 
-Sakiko 尽力保证了类型安全，通过 TypeScript 强大的编译期类型推导能力，开发者可以在编写代码时获取准确而详实的类型提示，得到更好的开发体验和更少的运行时类型错误。同时，通过 TypeScript ~~邪门~~强大的对象魔法，Sakiko 能够灵活的组合上下文的属性和类型，确保在复杂的处理链路中正确传递每一份类型提示和注释文本。
+借助 TypeScript 强大的类型推导与类型组合能力，Sakiko 在编译期提供准确的类型提示，减少运行时错误，并确保类型在复杂处理流程中始终正确传递。
 
-Sakiko pursues a minimalist and semantically clear API design, encapsulating complex features into simple methods. This allows developers to focus on implementing business logic rather than dealing with the framework itself. At the same time, Sakiko always prefers to solve problems with fewer dependencies, keeping the framework lightweight and efficient, so developers don't have to worry about a bloated dependency tree.
+Sakiko offers a minimal and expressive API, hiding complexity behind simple abstractions so developers can focus on business logic instead of framework internals.
+With a lightweight, low-dependency philosophy, it stays fast and easy to maintain.
 
-Sakiko strives to ensure type safety. Through TypeScript's powerful compile-time type inference capabilities, developers can obtain accurate and detailed type hints while writing code, resulting in a better development experience and fewer runtime type errors. Additionally, through TypeScript's ~~magical~~ powerful object manipulation, Sakiko can flexibly combine context properties and types, ensuring the correct transmission of each type hint and annotation text in complex processing chains.
+Powered by TypeScript’s advanced type inference and composition, Sakiko delivers precise type hints at compile time, reducing runtime errors and ensuring type safety throughout complex pipelines.
 
-### 脚本化 / Scripting
+### ✍️ 脚本化 / Scripting
 
-Sakiko 不使用脚手架工具来创建项目，而是更倾向于用最简单的方法表示应用逻辑，注入配置、安装插件、启动机器人应用甚至事件处理逻辑的编写都完全可以在单个 `index.ts` 文件中实现，在享受用 TypeScript 的强类型提示来配置和编排应用的同时，你最大程度的保有对自己的项目结构的控制权，想怎么写在哪里写完全由你自己决定。
+Sakiko 不依赖脚手架工具。
+从配置、插件安装到应用启动和事件处理，全部可以在一个 index.ts 文件中完成。
 
-Sakiko does not use scaffolding tools to create projects. Instead, it prefers to express application logic in the simplest way possible. Configuration injection, plugin installation, bot startup, and even event handling logic can all be implemented in a single `index.ts` file. While enjoying the strong type hints of TypeScript for configuring and orchestrating applications, you retain maximum control over your project structure, deciding where and how to write as you see fit.
+你既能享受 TypeScript 带来的强类型提示，又能完全掌控项目结构——代码写在哪、怎么组织，完全由你决定。
 
-### 可扩展、可插拔 / Scalable & Pluggable
+Sakiko avoids scaffolding tools.
+Configuration, plugin setup, app startup, and event handling can all live in a single index.ts.
 
-Sakiko 用规模灵活的插件系统向框架组合扩展各种功能，插件可以小到只是做一点事件处理，也可以在框架中注入复杂的功能模块，同时允许进行无副作用的动态插拔，开发者可以根据自己的需求安装插件，也可以用插件系统组织自己的代码。
+You get strong TypeScript typing while retaining full control over your project structure, with no imposed conventions.
 
-Sakiko uses a scalable plugin system to extend various functionalities to the framework. Plugins can be as small as handling a single event or as complex as injecting intricate functional modules into the framework. It also allows for side-effect-free dynamic plugging and unplugging, enabling developers to install plugins based on their needs and organize their code using the plugin system.
+### 🧩 可扩展、可插拔 / Scalable & Pluggable
+
+Sakiko 通过灵活的插件系统扩展功能。
+插件既可以只处理一个事件，也可以注入完整的功能模块，并支持无副作用的动态加载与卸载。
+
+你可以按需安装插件，或用插件系统来组织和拆分自己的代码。
+
+Sakiko features a flexible plugin system for extending functionality.
+Plugins range from simple event handlers to full-feature modules, and can be dynamically added or removed without side effects.
+
+Install only what you need, or use plugins as a clean way to structure your codebase.
 
 ## 开发进度 / Development Progress
 
-0.5 分支正在开发中，文档尚未更新。
+距离下个次要版本的发布还有这些要做的东西：
 
-🚧 巨大 API 变动警告！！！
-
-目前重构进度：
-
-- ✅ 核心迁移完成
-- ✅ 更易维护的项目结构
-- ✅ 移除 cjs 支持，仅保留 esm
-- ⚠️ 简化框架暴露的 API
-- ⚠️ uika 的分包可选导入模式
-- ⚠️ 通过 changesets 自动化版本发布流程
+- mutsumi 命令解析器以及对应的uika子包的开发
+- onebot v11 的协议数据结构定义&适配器实现
+- 继续优化框架中中间件的设计
