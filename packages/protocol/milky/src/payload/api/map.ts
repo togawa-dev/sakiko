@@ -5,7 +5,6 @@ import * as friend from "./friend";
 import * as group from "./group";
 import * as message from "./message";
 import * as system from "./system";
-import { z } from "zod/v4";
 
 /**
  * Milky API action -> (req/res) zod schema mapping.
